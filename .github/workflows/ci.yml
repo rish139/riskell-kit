@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: swift build -c release
+
+      - name: KIT-API.md lists every public symbol
+        # Declarations are printed slightly differently by each Swift toolchain, so compare the documented symbols, not the text.
+        run: |
+          grep '^## ' docs/KIT-API.md | sort > /tmp/committed.txt
+          scripts/gen-kit-api
+          grep '^## ' docs/KIT-API.md | sort > /tmp/generated.txt
+          diff /tmp/committed.txt /tmp/generated.txt
