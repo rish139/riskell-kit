@@ -34,7 +34,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [S
 
 No code change: `docs/KIT-API.md` lists `PopState` (the 0.2.0 tag was cut before it was regenerated, so its CI was red). Use 0.2.1.
 
-## [0.2.0]
+## [0.2.0] - withdrawn
+
+The tag was removed: its CI was red because `docs/KIT-API.md` was not regenerated before tagging. The code is in 0.2.1.
 
 ### Added
 - `PopState`: the open card and its stage (1 glance, 2 expanded), and `setStage`, so a card with two stages can be written as a package.
