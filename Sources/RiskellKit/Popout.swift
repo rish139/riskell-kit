@@ -20,6 +20,8 @@ public protocol PopoutHooks: AnyObject {
     func toggleStage(_ id: String)
     /// Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned).
     func setStage(_ stage: Int)
+    /// Close the open card (a link in a card, once followed).
+    func closeCard()
     /// Test hook (RISKELL_FORCE_HOT): keep the card out.
     func holdOpen()
 }
@@ -36,6 +38,7 @@ public final class PopState: ObservableObject {
         if stage != self.stage { self.stage = stage }
     }
     public func setStage(_ stage: Int) { KitHost.popout?.setStage(stage) }
+    public func close() { KitHost.popout?.closeCard() }
 }
 
 public enum KitHost {

@@ -19,13 +19,39 @@ public struct Prefs: Sendable {
     public func string(_ key: String, default d: String) -> String { strings[key] ?? d }
 }
 
+/// The app's `config.json`, read-only, live: the values the user set for riskell itself (`location`, `usage`, ...). Read by dotted path
+/// (`config.number("location.lat")`); an atom that draws from it observes the object, a service watches `$json`. A missing key is nil.
+/// Extensions keep their own settings in `Prefs`; this is for what the app already asks the user, so an atom need not ask again.
+public final class HostConfig: ObservableObject, @unchecked Sendable {
+    public static let shared = HostConfig()
+    @Published public private(set) var json: [String: Any] = [:]
+    public init() {}
+    /// Called by the app only, at launch and whenever config.json changes.
+    public func update(_ new: [String: Any]) { if !NSDictionary(dictionary: new).isEqual(to: json) { json = new } }
+    private func value(_ path: String) -> Any? {
+        var cur: Any? = json
+        for k in path.split(separator: ".") { cur = (cur as? [String: Any])?[String(k)] }
+        return cur
+    }
+    public func string(_ path: String) -> String? { value(path) as? String }
+    public func number(_ path: String) -> Double? { (value(path) as? NSNumber).map(\.doubleValue) }
+    public func bool(_ path: String) -> Bool? { (value(path) as? NSNumber).map(\.boolValue) }
+}
+
 /// What the app shares with the extension. The only ways an extension wakes up are here: `every`, `watch` and `on`. All three are cancelled
 /// by the app while the atom is not on a showing bar, so an extension that uses only these costs nothing at rest. A raw `Timer`,
 /// `DispatchSource` or `Thread` in an extension is a validation error.
 public final class Env: @unchecked Sendable {
     public let id: String
     public let prefs: Prefs
-    public init(id: String, prefs: Prefs = Prefs()) { self.id = id; self.prefs = prefs }
+    /// riskell's own config.json (see `HostConfig`).
+    public let config: HostConfig
+    /// A folder the extension may keep files in (caches). `~/.cache/riskell`, or the folder RISKELL_CACHE_DIR names.
+    public let cache: URL
+    public init(id: String, prefs: Prefs = Prefs(), config: HostConfig = .shared,
+                cache: URL = URL(fileURLWithPath: ProcessInfo.processInfo.environment["RISKELL_CACHE_DIR"] ?? NSHomeDirectory() + "/.cache/riskell")) {
+        self.id = id; self.prefs = prefs; self.config = config; self.cache = cache
+    }
 
     private var queue: DispatchQueue { DispatchQueue(label: "riskell.ext." + id, qos: .utility) }
 

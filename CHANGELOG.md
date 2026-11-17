@@ -2,6 +2,13 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.3.0]
+
+### Added
+- `HostConfig` and `Env.config`: riskell's own `config.json`, read-only and live, by dotted path (`location.lat`, `usage.claude`), so an atom does not
+  ask the user for what riskell already knows. `Env.cache`: a folder for caches.
+- `PopState.close()` and `PopoutHooks.closeCard()`; `CustomAtom.isBlank(_ env:)`.
+
 ## [0.2.1]
 
 No code change: `docs/KIT-API.md` lists `PopState` (the 0.2.0 tag was cut before it was regenerated, so its CI was red). Use 0.2.1.

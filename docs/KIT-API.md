@@ -317,6 +317,7 @@ An atom that draws itself. Both forms are required, so it cannot be registered w
 | `var card: Card? { get }` | The popout card, if it has one. |
 | `@ViewBuilder func horizontal(_ env: Env) -> Horizontal` |  |
 | `func isBlank() -> Bool` | True while it has nothing to draw: an island whose atoms are all blank is not drawn, and a blank atom leaves no separator behind. |
+| `func isBlank(_ env: Env) -> Bool` | The same, when it depends on riskell's config (`env.config`); it overrides `isBlank()` when it is implemented. |
 | `static var meta: AtomMeta { get }` |  |
 | `@ViewBuilder func vertical(_ env: Env) -> Vertical` |  |
 
@@ -358,7 +359,9 @@ What the app shares with the extension. The only ways an extension wakes up are 
 
 | member | |
 |---|---|
-| `init(id: String, prefs: Prefs = Prefs())` |  |
+| `init(id: String, prefs: Prefs = Prefs(), config: HostConfig = .shared, cache: URL = URL(fileURLWithPath: ProcessInfo.processInfo.environment["RISKELL_CACHE_DIR"] ?? NSHomeDirectory() + "/.cache/riskell"))` |  |
+| `let cache: URL` | A folder the extension may keep files in (caches). `~/.cache/riskell`, or the folder RISKELL_CACHE_DIR names. |
+| `let config: HostConfig` | riskell's own config.json (see `HostConfig`). |
 | `func every(_ interval: Duration, _ produce: @escaping @Sendable () -> Reading?) -> AsyncStream<Reading?>` | `produce` now and then every `interval` (at least one second), on a background queue, with the system free to coalesce the wake-ups. |
 | `let id: String` |  |
 | `func on<V>(_ feed: Feed<V>) -> AsyncStream<V> where V : Sendable` | A value of the app's own, delivered when it changes (see `Feed`); nothing runs for it while nobody is subscribed. |
@@ -496,6 +499,24 @@ What the app offers the kit for feeds. The app sets `KitHost.feeds`.
 |---|---|
 | `func subscribe(_ key: String, _ yield: @escaping @Sendable (Any) -> Void) -> () -> Void` | Starts delivering `key`'s current value and then each change to `yield`; the returned closure stops it (and the work behind it when it was the last subscriber). |
 
+## `HostConfig`
+
+```swift
+final class HostConfig
+```
+
+The app's `config.json`, read-only, live: the values the user set for riskell itself (`location`, `usage`, ...). Read by dotted path (`config.number("location.lat")`); an atom that draws from it observes the object, a service watches `$json`. A missing key is nil. Extensions keep their own settings in `Prefs`; this is for what the app already asks the user, so an atom need not ask again.
+
+| member | |
+|---|---|
+| `init()` |  |
+| `func bool(_ path: String) -> Bool?` |  |
+| `@Published var json: [String : Any] { get set }` |  |
+| `func number(_ path: String) -> Double?` |  |
+| `static let shared: HostConfig` |  |
+| `func string(_ path: String) -> String?` |  |
+| `func update(_ new: [String : Any])` | Called by the app only, at launch and whenever config.json changes. |
+
 ## `KitHost`
 
 ```swift
@@ -518,6 +539,7 @@ What the open card is doing, for a card that has two stages (the date card: a gl
 | member | |
 |---|---|
 | `@Published var card: String? { get set }` |  |
+| `func close()` |  |
 | `func setStage(_ stage: Int)` |  |
 | `static let shared: PopState` |  |
 | `@Published var stage: Int { get set }` |  |
@@ -533,6 +555,7 @@ What the app's single popout host offers the kit. The app sets `KitHost.popout`;
 
 | member | |
 |---|---|
+| `func closeCard()` | Close the open card (a link in a card, once followed). |
 | `var editing: Bool { get }` | True while the layout editor is on: atoms do not open cards then. |
 | `func holdOpen()` | Test hook (RISKELL_FORCE_HOT): keep the card out. |
 | `func hover(_ id: String, anchor: CGRect, edge: PopEdge, island: CGRect?)` |  |

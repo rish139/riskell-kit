@@ -58,6 +58,8 @@ public protocol CustomAtom {
     var card: Card? { get }
     /// True while it has nothing to draw: an island whose atoms are all blank is not drawn, and a blank atom leaves no separator behind.
     func isBlank() -> Bool
+    /// The same, when it depends on riskell's config (`env.config`); it overrides `isBlank()` when it is implemented.
+    func isBlank(_ env: Env) -> Bool
     /// Called when the atom appears on a showing bar; the closure it returns is called when the last instance leaves. Start your work here,
     /// never at init: an atom that is not on a bar must cost nothing.
     func activate(_ env: Env) -> (() -> Void)?
@@ -66,6 +68,7 @@ public protocol CustomAtom {
 public extension CustomAtom {
     var card: Card? { nil }
     func isBlank() -> Bool { false }
+    func isBlank(_ env: Env) -> Bool { isBlank() }
     func activate(_ env: Env) -> (() -> Void)? { nil }
 }
 
