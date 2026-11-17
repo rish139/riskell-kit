@@ -540,10 +540,11 @@ What the open card is doing, for a card that has two stages (the date card: a gl
 |---|---|
 | `@Published var card: String? { get set }` |  |
 | `func close()` |  |
+| `@Published var open: Bool { get set }` | False from the moment the card starts to close (`card` is kept until its close animation is done). |
 | `func setStage(_ stage: Int)` |  |
 | `static let shared: PopState` |  |
 | `@Published var stage: Int { get set }` |  |
-| `func sync(card: String?, stage: Int)` | Called by the app only. |
+| `func sync(card: String?, stage: Int, open: Bool)` | Called by the app only. |
 
 ## `PopoutHooks`
 

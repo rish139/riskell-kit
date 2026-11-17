@@ -32,10 +32,13 @@ public final class PopState: ObservableObject {
     public static let shared = PopState()
     @Published public private(set) var stage = 1
     @Published public private(set) var card: String?
+    /// False from the moment the card starts to close (`card` is kept until its close animation is done).
+    @Published public private(set) var open = false
     /// Called by the app only.
-    public func sync(card: String?, stage: Int) {
+    public func sync(card: String?, stage: Int, open: Bool) {
         if card != self.card { self.card = card }
         if stage != self.stage { self.stage = stage }
+        if open != self.open { self.open = open }
     }
     public func setStage(_ stage: Int) { KitHost.popout?.setStage(stage) }
     public func close() { KitHost.popout?.closeCard() }
