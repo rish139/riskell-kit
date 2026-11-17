@@ -487,6 +487,18 @@ Reads an atom's rectangle in screen coordinates on demand (no layout callbacks, 
 |---|---|
 | `@MainActor init(box: AnchorBox)` |  |
 
+## `AppHooks`
+
+```swift
+protocol AppHooks : AnyObject
+```
+
+What the application offers beyond popouts. The app sets `KitHost.app`.
+
+| member | |
+|---|---|
+| `func restart()` | Ask riskell to restart itself (launchd starts it again): for a permission that only takes effect in a new process, such as Location. |
+
 ## `Demo`
 
 ```swift
@@ -547,6 +559,7 @@ enum KitHost
 
 | member | |
 |---|---|
+| `weak static var app: AppHooks?` |  |
 | `weak static var feeds: FeedHub?` |  |
 | `weak static var popout: PopoutHooks?` |  |
 

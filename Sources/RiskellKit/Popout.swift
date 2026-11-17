@@ -50,8 +50,15 @@ public final class PopState: ObservableObject {
     public func refit() { KitHost.popout?.refit() }
 }
 
+/// What the application offers beyond popouts. The app sets `KitHost.app`.
+public protocol AppHooks: AnyObject {
+    /// Ask riskell to restart itself (launchd starts it again): for a permission that only takes effect in a new process, such as Location.
+    func restart()
+}
+
 public enum KitHost {
     public static weak var popout: PopoutHooks?
+    public static weak var app: AppHooks?
 }
 
 /// Reads an atom's rectangle in screen coordinates on demand (no layout callbacks, nothing to keep in sync).

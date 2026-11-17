@@ -2,6 +2,13 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.5.0]
+
+### Added
+- `View.onScrollSteps(_:)`: the wheel over a view steps a value.
+- `AppHooks` and `KitHost.app`: `restart()`, for a permission that needs a new process (macOS shows Wi-Fi names only to a process that started after
+  the Location grant).
+
 ## [0.4.0]
 
 ### Added
