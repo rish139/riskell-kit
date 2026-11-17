@@ -487,6 +487,28 @@ Reads an atom's rectangle in screen coordinates on demand (no layout callbacks, 
 |---|---|
 | `@MainActor init(box: AnchorBox)` |  |
 
+## `Demo`
+
+```swift
+enum Demo
+```
+
+Hooks for screenshots (riskell's `scripts/make-screenshots`); both are off unless their environment variable is set. An atom that shows a name belonging to the user (a process, a volume, an audio or Bluetooth device, a network address) passes it through here, so a screenshot of it carries a placeholder instead. - RISKELL_DEMO: names that belong to the user are shown as placeholders. - RISKELL_CACHE_DIR: where riskell keeps its caches, so a test instance never reads or overwrites the real ones.
+
+| member | |
+|---|---|
+| `static func address(_ ip: String, _ placeholder: String) -> String` |  |
+| `static var cacheDirectory: String { get }` | `~/.cache/riskell`, or the folder RISKELL_CACHE_DIR names. |
+| `static func cpuAt(_ i: Int) -> Double` |  |
+| `static func dbAt(_ i: Int) -> Double` |  |
+| `static func device(_ name: String) -> String` | An audio or Bluetooth device name: possessives ("Sam's iPhone") lose the owner. |
+| `static func memAt(_ i: Int) -> Double` |  |
+| `static let on: Bool` |  |
+| `static func process(_ name: String) -> String` | A process or app name: itself, or (in demo mode) a stable stand-in. riskell keeps its own name. |
+| `static func rxAt(_ i: Int) -> Double` |  |
+| `static func txAt(_ i: Int) -> Double` |  |
+| `static func volume(_ name: String) -> String` |  |
+
 ## `FeedHub`
 
 ```swift
@@ -541,6 +563,8 @@ What the open card is doing, for a card that has two stages (the date card: a gl
 | `@Published var card: String? { get set }` |  |
 | `func close()` |  |
 | `@Published var open: Bool { get set }` | False from the moment the card starts to close (`card` is kept until its close animation is done). |
+| `func refit()` |  |
+| `func setKeyable(_ on: Bool)` |  |
 | `func setStage(_ stage: Int)` |  |
 | `static let shared: PopState` |  |
 | `@Published var stage: Int { get set }` |  |
@@ -563,6 +587,8 @@ What the app's single popout host offers the kit. The app sets `KitHost.popout`;
 | `func leave(_ id: String)` |  |
 | `var openCard: String? { get }` | The card that is open now, if any. |
 | `func reanchor(_ id: String, _ anchor: CGRect, island: CGRect?)` |  |
+| `func refit()` | The card's content changed size: fit the card to it again. |
+| `func setKeyable(_ on: Bool)` | Let the card take key presses (a search field in a card); false again when it is done. |
 | `func setStage(_ stage: Int)` | Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned). |
 | `func toggleStage(_ id: String)` |  |
 

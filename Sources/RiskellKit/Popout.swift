@@ -22,6 +22,10 @@ public protocol PopoutHooks: AnyObject {
     func setStage(_ stage: Int)
     /// Close the open card (a link in a card, once followed).
     func closeCard()
+    /// Let the card take key presses (a search field in a card); false again when it is done.
+    func setKeyable(_ on: Bool)
+    /// The card's content changed size: fit the card to it again.
+    func refit()
     /// Test hook (RISKELL_FORCE_HOT): keep the card out.
     func holdOpen()
 }
@@ -42,6 +46,8 @@ public final class PopState: ObservableObject {
     }
     public func setStage(_ stage: Int) { KitHost.popout?.setStage(stage) }
     public func close() { KitHost.popout?.closeCard() }
+    public func setKeyable(_ on: Bool) { KitHost.popout?.setKeyable(on) }
+    public func refit() { KitHost.popout?.refit() }
 }
 
 public enum KitHost {

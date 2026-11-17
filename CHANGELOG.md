@@ -2,6 +2,12 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.4.0]
+
+### Added
+- `PopState.setKeyable(_:)` and `PopState.refit()`: a card with a search field takes key presses, and a card whose content changed size is fitted again.
+- `View.onRightClick(_:)`; `Demo`: the screenshot hooks (placeholders for names that belong to the user, and the cache folder).
+
 ## [0.3.0]
 
 ### Added
