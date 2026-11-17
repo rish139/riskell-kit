@@ -326,7 +326,7 @@ An atom that draws itself. Both forms are required, so it cannot be registered w
 struct Card
 ```
 
-A hover card of an atom that draws itself. Its size is declared per stage (stage 0 is the one hover opens).
+A hover card of an atom that draws itself. Its size is declared per stage (1 is the glance hover opens, 2 the expanded card a click pins; see `PopState`).
 
 | member | |
 |---|---|
@@ -507,6 +507,22 @@ enum KitHost
 | `weak static var feeds: FeedHub?` |  |
 | `weak static var popout: PopoutHooks?` |  |
 
+## `PopState`
+
+```swift
+final class PopState
+```
+
+What the open card is doing, for a card that has two stages (the date card: a glance, then the month). The app keeps it in step with its popout host; a card reads `stage` and `card` and calls `setStage` from a button. Stage 1 is the glance, 2 the expanded card.
+
+| member | |
+|---|---|
+| `@Published var card: String? { get set }` |  |
+| `func setStage(_ stage: Int)` |  |
+| `static let shared: PopState` |  |
+| `@Published var stage: Int { get set }` |  |
+| `func sync(card: String?, stage: Int)` | Called by the app only. |
+
 ## `PopoutHooks`
 
 ```swift
@@ -523,6 +539,7 @@ What the app's single popout host offers the kit. The app sets `KitHost.popout`;
 | `func leave(_ id: String)` |  |
 | `var openCard: String? { get }` | The card that is open now, if any. |
 | `func reanchor(_ id: String, _ anchor: CGRect, island: CGRect?)` |  |
+| `func setStage(_ stage: Int)` | Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned). |
 | `func toggleStage(_ id: String)` |  |
 
 ## `RGB`
