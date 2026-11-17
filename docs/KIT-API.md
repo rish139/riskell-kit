@@ -562,6 +562,8 @@ enum KitHost
 | `weak static var app: AppHooks?` |  |
 | `weak static var feeds: FeedHub?` |  |
 | `weak static var popout: PopoutHooks?` |  |
+| `static var screenHeight: () -> CGFloat` | The height of the screen the bars are on, in points: for a card that must fit it. Set by the app. |
+| `weak static var windows: WindowActions?` | The window manager's actions (nil: none is running). |
 
 ## `PopState`
 
@@ -574,14 +576,16 @@ What the open card is doing, for a card that has two stages (the date card: a gl
 | member | |
 |---|---|
 | `@Published var card: String? { get set }` |  |
+| `@Published var chat: Bool { get set }` | True while the open card is drawn in the chat style (joined to its island instead of hanging flush from the bar). |
 | `func close()` |  |
 | `@Published var open: Bool { get set }` | False from the moment the card starts to close (`card` is kept until its close animation is done). |
 | `func refit()` |  |
+| `func setHoldOpen(_ on: Bool)` |  |
 | `func setKeyable(_ on: Bool)` |  |
 | `func setStage(_ stage: Int)` |  |
 | `static let shared: PopState` |  |
 | `@Published var stage: Int { get set }` |  |
-| `func sync(card: String?, stage: Int, open: Bool)` | Called by the app only. |
+| `func sync(card: String?, stage: Int, open: Bool, chat: Bool = false)` | Called by the app only. |
 
 ## `PopoutHooks`
 
@@ -601,6 +605,7 @@ What the app's single popout host offers the kit. The app sets `KitHost.popout`;
 | `var openCard: String? { get }` | The card that is open now, if any. |
 | `func reanchor(_ id: String, _ anchor: CGRect, island: CGRect?)` |  |
 | `func refit()` | The card's content changed size: fit the card to it again. |
+| `func setHoldOpen(_ on: Bool)` | Keep the open card out (a drag in progress) or let it close as usual. |
 | `func setKeyable(_ on: Bool)` | Let the card take key presses (a search field in a card); false again when it is done. |
 | `func setStage(_ stage: Int)` | Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned). |
 | `func toggleStage(_ id: String)` |  |
@@ -625,6 +630,22 @@ struct RGB
 | `var ns: NSColor { get }` |  |
 | `var r: Double` |  |
 | `static let white: RGB` |  |
+
+## `RailState`
+
+```swift
+final class RailState
+```
+
+How far the workspace capsule sits from the focused workspace while fingers swipe (the app owns the gesture): `swipe` is in slots, positive towards later workspaces, and includes swipes macOS has not confirmed yet; `live` is true while the fingers are down (follow them, no animation).
+
+| member | |
+|---|---|
+| `init()` |  |
+| `@Published var live: Bool { get set }` |  |
+| `static let shared: RailState` |  |
+| `@Published var swipe: Double { get set }` |  |
+| `func update(swipe: Double, live: Bool)` | Called by the app only. |
 
 ## `Theme`
 
@@ -659,3 +680,69 @@ The resolved palette every `Pal` token reads. Built once per theme change; readi
 | `let text4: RGB` |  |
 | `let tile: RGB` |  |
 | `let warn: RGB` |  |
+
+## `WindowActions`
+
+```swift
+protocol WindowActions : AnyObject
+```
+
+What an atom may ask of the window manager.
+
+| member | |
+|---|---|
+| `func close(window id: Int)` |  |
+| `func focus(space: Int)` |  |
+| `func focus(window id: Int)` |  |
+| `func move(window id: Int, toSpace space: Int)` |  |
+| `func moveToNewSpace(window id: Int, after count: Int)` | Into a new workspace after the last one shown (`count` workspaces are shown). |
+
+## `WindowInfo`
+
+```swift
+struct WindowInfo
+```
+
+One window on the bar's display.
+
+| member | |
+|---|---|
+| `init(id: Int, pid: Int, app: String, title: String, space: Int, focused: Bool)` |  |
+| `var app: String` |  |
+| `var focused: Bool` |  |
+| `var pid: Int` |  |
+| `var space: Int` |  |
+| `var title: String` |  |
+
+## `WindowsModel`
+
+```swift
+final class WindowsModel
+```
+
+The workspaces and windows, live. The app keeps it in step with the window manager; an atom observes it. Empty with no window manager.
+
+| member | |
+|---|---|
+| `init()` |  |
+| `var focusedIndex: Int? { get }` |  |
+| `static let shared: WindowsModel` |  |
+| `@Published var spaces: [WorkspaceInfo] { get set }` |  |
+| `func update(spaces: [WorkspaceInfo], windows: [WindowInfo])` | Called by the app only. |
+| `@Published var windows: [WindowInfo] { get set }` |  |
+
+## `WorkspaceInfo`
+
+```swift
+struct WorkspaceInfo
+```
+
+One workspace (a "space") of the window manager that riskell works with (OmniWM, yabai, AeroSpace, a command backend, or none).
+
+| member | |
+|---|---|
+| `init(id: Int, focused: Bool, visible: Bool, windows: Int, fullscreen: Bool)` |  |
+| `var focused: Bool` |  |
+| `var fullscreen: Bool` |  |
+| `var visible: Bool` |  |
+| `var windows: Int` |  |

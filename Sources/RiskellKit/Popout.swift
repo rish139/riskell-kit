@@ -20,6 +20,8 @@ public protocol PopoutHooks: AnyObject {
     func toggleStage(_ id: String)
     /// Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned).
     func setStage(_ stage: Int)
+    /// Keep the open card out (a drag in progress) or let it close as usual.
+    func setHoldOpen(_ on: Bool)
     /// Close the open card (a link in a card, once followed).
     func closeCard()
     /// Let the card take key presses (a search field in a card); false again when it is done.
@@ -38,14 +40,18 @@ public final class PopState: ObservableObject {
     @Published public private(set) var card: String?
     /// False from the moment the card starts to close (`card` is kept until its close animation is done).
     @Published public private(set) var open = false
+    /// True while the open card is drawn in the chat style (joined to its island instead of hanging flush from the bar).
+    @Published public private(set) var chat = false
     /// Called by the app only.
-    public func sync(card: String?, stage: Int, open: Bool) {
+    public func sync(card: String?, stage: Int, open: Bool, chat: Bool = false) {
+        if chat != self.chat { self.chat = chat }
         if card != self.card { self.card = card }
         if stage != self.stage { self.stage = stage }
         if open != self.open { self.open = open }
     }
     public func setStage(_ stage: Int) { KitHost.popout?.setStage(stage) }
     public func close() { KitHost.popout?.closeCard() }
+    public func setHoldOpen(_ on: Bool) { KitHost.popout?.setHoldOpen(on) }
     public func setKeyable(_ on: Bool) { KitHost.popout?.setKeyable(on) }
     public func refit() { KitHost.popout?.refit() }
 }
@@ -59,6 +65,10 @@ public protocol AppHooks: AnyObject {
 public enum KitHost {
     public static weak var popout: PopoutHooks?
     public static weak var app: AppHooks?
+    /// The window manager's actions (nil: none is running).
+    public static weak var windows: WindowActions?
+    /// The height of the screen the bars are on, in points: for a card that must fit it. Set by the app.
+    public static var screenHeight: () -> CGFloat = { 900 }
 }
 
 /// Reads an atom's rectangle in screen coordinates on demand (no layout callbacks, nothing to keep in sync).

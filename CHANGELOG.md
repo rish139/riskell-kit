@@ -2,6 +2,13 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.6.0]
+
+### Added
+- `WindowsModel` (`WorkspaceInfo`, `WindowInfo`), `RailState` and `WindowActions` (`KitHost.windows`): the workspaces and windows of the window manager,
+  the live swipe of the workspace rail, and focus, close and move actions, so a workspace rail or a window list can be written as a package.
+- `PopState.chat` and `PopState.setHoldOpen(_:)`; `KitHost.screenHeight`.
+
 ## [0.5.0]
 
 ### Added
