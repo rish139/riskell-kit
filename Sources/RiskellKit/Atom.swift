@@ -35,7 +35,7 @@ public protocol ReadingAtom {
     func readings(_ env: Env) -> AsyncStream<Reading?>
 }
 
-/// A hover card of an atom that draws itself. Its size is declared per stage (stage 0 is the one hover opens).
+/// A hover card of an atom that draws itself. Its size is declared per stage (1 is the glance hover opens, 2 the expanded card a click pins; see `PopState`).
 public struct Card {
     public let id: String
     public let size: (_ stage: Int) -> CGSize

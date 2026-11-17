@@ -18,8 +18,24 @@ public protocol PopoutHooks: AnyObject {
     func reanchor(_ id: String, _ anchor: CGRect, island: CGRect?)
     func leave(_ id: String)
     func toggleStage(_ id: String)
+    /// Open the card in stage 1 (hover: a glance) or 2 (click: expanded and pinned).
+    func setStage(_ stage: Int)
     /// Test hook (RISKELL_FORCE_HOT): keep the card out.
     func holdOpen()
+}
+
+/// What the open card is doing, for a card that has two stages (the date card: a glance, then the month). The app keeps it in step with its
+/// popout host; a card reads `stage` and `card` and calls `setStage` from a button. Stage 1 is the glance, 2 the expanded card.
+public final class PopState: ObservableObject {
+    public static let shared = PopState()
+    @Published public private(set) var stage = 1
+    @Published public private(set) var card: String?
+    /// Called by the app only.
+    public func sync(card: String?, stage: Int) {
+        if card != self.card { self.card = card }
+        if stage != self.stage { self.stage = stage }
+    }
+    public func setStage(_ stage: Int) { KitHost.popout?.setStage(stage) }
 }
 
 public enum KitHost {
