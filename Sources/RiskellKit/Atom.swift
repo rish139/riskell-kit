@@ -72,13 +72,15 @@ public extension CustomAtom {
     func activate(_ env: Env) -> (() -> Void)? { nil }
 }
 
-/// What a package exports: its atoms. The app's generated list names one of these per installed package.
+/// What a package exports: its atoms and its behaviours. The app's generated list names one of these per installed package.
 public protocol RiskellPackage {
     static var readings: [any ReadingAtom.Type] { get }
     static var atoms: [any CustomAtom.Type] { get }
+    static var behaviours: [any Behaviour.Type] { get }
 }
 
 public extension RiskellPackage {
     static var readings: [any ReadingAtom.Type] { [] }
     static var atoms: [any CustomAtom.Type] { [] }
+    static var behaviours: [any Behaviour.Type] { [] }
 }

@@ -11,10 +11,17 @@ more, so that everything written against it matches the shell in every theme and
 - **Readings:** `Reading`, `Metric` and `Tone` describe a figure, a gauge, a sparkline and a hover card. The kit draws them as a row, a
   column and a card, exactly as the built-in atoms are drawn. There is no colour parameter: a tone is a role and the theme chooses the
   colour.
-- **Atoms:** `ReadingAtom` (yields readings) and `CustomAtom` (draws itself; both bar forms are required), `Card`, `AtomMeta`,
-  `RiskellPackage`.
+- **Atoms:** `ReadingAtom` (yields readings) and `CustomAtom` (draws itself; both bar forms are required), `Card`, `AtomMeta`, and
+  `RiskellPackage`, which names a package's readings and atoms.
+- **Windows:** `WindowsModel` (`WorkspaceInfo`, `WindowInfo`), the workspaces and windows of the window manager, live; `RailState`, the swipe
+  of a workspace rail as the fingers make it; and `WindowActions` (`KitHost.windows`): focus a workspace or a window, close one, move one.
+- **Behaviours:** `Behaviour`, the part of a package that runs in the background and has no place on a bar; `RiskellPackage.behaviours` names
+  them. riskell starts one only while its package is installed and not disabled and the window manager it names is the one riskell runs.
+- **Manager hooks:** a `ManagerHook` behaviour returns the window manager's own commands (`ManagerCommand`) for the events it asked for
+  (`ManagerEvent`), given what riskell knows (`ManagerState`, `ManagedWindow`, `ManagedWorkspace`). riskell puts them ahead of its own queries
+  in the next request it sends the manager, so the windows are laid out once.
 - **Waking up:** `Env.every`, `Env.watch`, `Env.on(_:)` and `Env.repeating`. An extension does not create timers or threads of its own;
-  riskell cancels these whenever the atom is not on a bar that is showing.
+  riskell cancels these whenever the atom is not on a bar that is showing, and a behaviour wakes only when riskell calls it or through `Env`.
 - **Shared values:** feeds for battery, volume, the focused application, spaces and the minute.
 
 The API reference is generated from the code: [docs/KIT-API.md](docs/KIT-API.md).

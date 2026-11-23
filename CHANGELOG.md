@@ -2,6 +2,18 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.7.0]
+
+### Added
+- `Behaviour` and `RiskellPackage.behaviours`: a package's background part, which has no place on a bar. riskell starts it when its package is
+  installed and not disabled in config.json, and when the window manager it names (`Behaviour.manager`) is the one riskell runs; it stops it when
+  either changes and when riskell quits. A behaviour wakes only when riskell calls it or through `Env`, and starts no timer or thread.
+- `ManagerHook`, with `ManagerEvent`, `ManagerState`, `ManagedWindow`, `ManagedWorkspace` and `ManagerCommand`: a behaviour returns the window
+  manager's own commands for the events it asked for, and riskell puts them at the front of the next request it sends the manager, with its
+  own queries. That keeps it one request, so the windows are laid out once. Only the AeroSpace backend calls hooks.
+
+Additive: a package that names no behaviours is unaffected, and a requirement of `from: "0.6.0"` still builds.
+
 ## [0.6.0]
 
 ### Added

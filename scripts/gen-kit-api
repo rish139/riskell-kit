@@ -18,7 +18,9 @@ def doc(s): return " ".join(l["text"].strip() for l in s.get("docComment", {}).g
 top = [s for pid, s in syms.items() if len(s["pathComponents"]) == 1 and s["kind"]["identifier"] in
        ("swift.struct", "swift.enum", "swift.protocol", "swift.class", "swift.func", "swift.var", "swift.typealias")]
 order = ["Pal", "T", "G", "Tone", "Reading", "Metric", "ReadingBody", "ReadingCardContent", "Num", "Cap", "Sep", "Bar", "VGauge", "Sparkline", "Rule", "Dot", "Sheen",
-         "AtomMeta", "ReadingAtom", "CustomAtom", "Card", "RiskellPackage", "Env", "Prefs", "Feed", "BatteryState", "VolumeState", "FocusedApp", "SpacesState", "PopEdge"]
+         "AtomMeta", "ReadingAtom", "CustomAtom", "Card", "RiskellPackage",
+         "Behaviour", "ManagerEvent", "ManagerState", "ManagedWindow", "ManagedWorkspace", "ManagerCommand", "ManagerHook",
+         "Env", "Prefs", "Feed", "BatteryState", "VolumeState", "FocusedApp", "SpacesState", "PopEdge"]
 rank = {n: i for i, n in enumerate(order)}
 top.sort(key=lambda s: (rank.get(s["names"]["title"], 999), s["names"]["title"]))
 out = ["# RiskellKit API", "",

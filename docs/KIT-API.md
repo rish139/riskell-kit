@@ -342,12 +342,116 @@ A hover card of an atom that draws itself. Its size is declared per stage (1 is 
 protocol RiskellPackage
 ```
 
-What a package exports: its atoms. The app's generated list names one of these per installed package.
+What a package exports: its atoms and its behaviours. The app's generated list names one of these per installed package.
 
 | member | |
 |---|---|
 | `static var atoms: [any CustomAtom.Type] { get }` |  |
+| `static var behaviours: [any Behaviour.Type] { get }` |  |
 | `static var readings: [any ReadingAtom.Type] { get }` |  |
+
+## `Behaviour`
+
+```swift
+protocol Behaviour : AnyObject
+```
+
+A part of a package that runs in the background and has no place on a bar. riskell starts it when its package is installed and not disabled in config.json, and when the window manager it works with (`manager`) is the one riskell runs. It stops it when either changes and when riskell quits. A behaviour wakes only when riskell calls it (a `ManagerHook`) or through `Env`; it starts no timer or thread of its own.
+
+| member | |
+|---|---|
+| `init()` |  |
+| `static var id: String { get }` | A plain id, unique among the behaviours riskell has: letters, digits, `-` and `_`. |
+| `static var manager: String? { get }` | The window manager it works with, as `wm` names it in config.json (`"aerospace"`). nil: it runs with any. |
+| `func start(_ env: Env) -> (() -> Void)?` | Starts it, with its package's settings in `env.prefs`. Returns what undoes the start, called when it stops (nil: nothing to undo). |
+
+## `ManagerEvent`
+
+```swift
+struct ManagerEvent
+```
+
+One event from the window manager, as the manager reported it, or one that riskell adds where the manager reports nothing.
+
+| member | |
+|---|---|
+| `init(name: String, fields: [String : String] = [:])` |  |
+| `static let bindingTriggered: String` | A key binding of the manager's own fired (`binding`, `mode`). The manager runs the binding's commands after it reports it. |
+| `let fields: [String : String]` | Its fields as text, under AeroSpace's names: `windowId`, `workspace`, `prevWorkspace`, `appBundleId`, `appName`, `mode`, `binding`. |
+| `let name: String` | AeroSpace's own names (`window-detected`, `focus-changed`, `focused-workspace-changed`, `focused-monitor-changed`, `binding-triggered`), or `window-arrived`, which riskell adds. |
+| `static let windowArrived: String` | A tiling window is now on a workspace it was not on before: it was moved there, or it came back into the layout (it stopped floating, or left minimised, full screen or a hidden app). AeroSpace reports none of these, so riskell adds this event when its own query shows it, or when riskell itself is about to move the window. |
+| `static let windowDetected: String` | A window the manager has just started managing (opened, or found at its start). |
+| `var windowId: Int? { get }` |  |
+| `var workspace: String? { get }` |  |
+
+## `ManagerState`
+
+```swift
+struct ManagerState
+```
+
+What riskell knows of the window manager when an event arrives: the result of its last query, with the windows that no longer exist left out.
+
+| member | |
+|---|---|
+| `init(windows: [ManagedWindow], workspaces: [ManagedWorkspace], focusedWindow: Int?, focusedWorkspace: String?)` |  |
+| `var focusedWindow: Int?` |  |
+| `var focusedWorkspace: String?` |  |
+| `var windows: [ManagedWindow]` | In window-id order, which is the order in which the windows were created. |
+| `var workspaces: [ManagedWorkspace]` |  |
+
+## `ManagedWindow`
+
+```swift
+struct ManagedWindow
+```
+
+| member | |
+|---|---|
+| `init(id: Int, workspace: String, floating: Bool)` |  |
+| `let floating: Bool` | Outside the tiling layout: floating, a dialog the manager floats, minimised, in macOS full screen, or belonging to a hidden app. |
+| `let id: Int` |  |
+| `let workspace: String` |  |
+
+## `ManagedWorkspace`
+
+```swift
+struct ManagedWorkspace
+```
+
+| member | |
+|---|---|
+| `init(name: String, rootLayout: String?, landscape: Bool?)` |  |
+| `let landscape: Bool?` | Its display is wider than it is tall. nil: riskell cannot tell. |
+| `let name: String` |  |
+| `let rootLayout: String?` | The layout of its top container, under AeroSpace's names: `h_tiles`, `v_tiles`, `h_accordion`, `v_accordion`. |
+
+## `ManagerCommand`
+
+```swift
+struct ManagerCommand
+```
+
+One line of the window manager's own command language. For AeroSpace that is its shell: commands joined by `;`, `&&` and `||`, with `exec-and-forget` and `eval` refused inside it.
+
+| member | |
+|---|---|
+| `init(_ script: String, window: Int? = nil)` |  |
+| `let script: String` |  |
+| `let window: Int?` | The window that commands without `--window-id` act on, `test` among them. nil: the focused window. |
+
+## `ManagerHook`
+
+```swift
+protocol ManagerHook : AnyObject
+```
+
+A behaviour that adds the window manager's own commands to what riskell sends it. For each event named in `events`, riskell calls `commands(for:in:)` on its window-manager queue and puts what it returns at the front of the next request it sends, together with its own queries. That keeps it to one request, so the manager lays the windows out once. The call must return at once: no waiting and no input or output. Only the AeroSpace backend calls hooks.
+
+| member | |
+|---|---|
+| `func commands(for event: ManagerEvent, in state: ManagerState) -> [ManagerCommand]` | The commands to send for `event`, given what riskell knows (`state`). Empty: nothing to send. |
+| `var events: Set<String> { get }` | The names of the events it wants (`ManagerEvent.name`). No other event reaches it. |
 
 ## `Env`
 
