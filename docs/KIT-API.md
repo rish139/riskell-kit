@@ -408,8 +408,9 @@ struct ManagedWindow
 
 | member | |
 |---|---|
-| `init(id: Int, workspace: String, floating: Bool)` |  |
+| `init(id: Int, workspace: String, floating: Bool, frame: CGRect? = nil)` |  |
 | `let floating: Bool` | Outside the tiling layout: floating, a dialog the manager floats, minimised, in macOS full screen, or belonging to a hidden app. |
+| `let frame: CGRect?` | Where the window is on its display, in screen points from the top-left of the main display (y grows downward). Filled in only for the events a hook asks for (`ManagerHook.needsFrames(for:)`), and only for a window that is on screen: a window of a hidden workspace is parked off screen by the manager and has none. nil otherwise. |
 | `let id: Int` |  |
 | `let workspace: String` |  |
 
@@ -421,8 +422,9 @@ struct ManagedWorkspace
 
 | member | |
 |---|---|
-| `init(name: String, rootLayout: String?, landscape: Bool?)` |  |
+| `init(name: String, rootLayout: String?, landscape: Bool?, monitor: Int? = nil)` |  |
 | `let landscape: Bool?` | Its display is wider than it is tall. nil: riskell cannot tell. |
+| `let monitor: Int?` | The number of the monitor the workspace is assigned to (1-based, as the manager numbers them), even when it is not showing and even when it is empty. Every workspace has one, and the manager's own `next` and `prev` only go between the workspaces of one monitor. nil: not known. |
 | `let name: String` |  |
 | `let rootLayout: String?` | The layout of its top container, under AeroSpace's names: `h_tiles`, `v_tiles`, `h_accordion`, `v_accordion`. |
 
@@ -450,8 +452,11 @@ A behaviour that adds the window manager's own commands to what riskell sends it
 
 | member | |
 |---|---|
+| `var bindingMode: String? { get }` | The binding mode of the manager that this hook's keys are bound in, or nil when it has none. riskell puts the manager into that mode while the hook runs and back into `main` when it stops (or riskell quits), so the keys that do nothing without the hook (bound to `true`, say, for the hook to act on) exist only in that mode and `main` keeps the plain ones. A mode the manager does not have is reported once and left alone. |
 | `func commands(for event: ManagerEvent, in state: ManagerState) -> [ManagerCommand]` | The commands to send for `event`, given what riskell knows (`state`). Empty: nothing to send. |
 | `var events: Set<String> { get }` | The names of the events it wants (`ManagerEvent.name`). No other event reaches it. |
+| `func needsFrames(for event: ManagerEvent) -> Bool` | True when `ManagedWindow.frame` should be filled in for `event`. Reading frames costs one call to the window server, so riskell makes it only when a hook says so for the event at hand, and the frames are the live ones, not the ones of the last query. The default is false. |
+| `func wants(_ event: ManagerEvent) -> Bool` | True when the hook wants this event. It is asked after the name is found in `events` and before riskell builds the state for the event, which costs a call to the window server: a hook that acts on only a few of the variants of a frequent event (a few key bindings among all of them) answers here and is left out of the rest, so they cost nothing for it. The default is true. |
 
 ## `Env`
 

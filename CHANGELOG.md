@@ -2,6 +2,21 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [Semantic Versioning](https://semver.org).
 
+## [0.8.0]
+
+### Added
+- `ManagedWindow.frame` and `ManagerHook.needsFrames(for:)`: a hook can ask for the windows' live rectangles for an event, so it can read the tiling
+  layout as it is on screen. riskell reads them (one window-server call) only for an event a hook asked about.
+- `ManagedWorkspace.monitor`: the monitor a workspace is assigned to, so a hook can go to the neighbouring workspace the way the manager's own `next`
+  and `prev` do.
+- `ManagerHook.wants(_:)`: a hook answers, per event and before the state is built, whether it wants the event, so a few key bindings of the many
+  that fire cost nothing for the others.
+- `ManagerHook.bindingMode`: the manager's binding mode a hook's keys live in. riskell enters it while the hook runs and returns to `main` when it
+  stops, so the keys that need the hook never replace the plain ones when riskell is not running. The mode and its keys are in the manager's own config.
+
+Additive: `frame` is nil unless asked for, and `needsFrames(for:)`, `wants(_:)` and `bindingMode` have defaults (false, true, nil), so a package that
+adopts none of them builds as before and a requirement of `from: "0.7.0"` still resolves.
+
 ## [0.7.0]
 
 ### Added
